@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { supabase } from "@/lib/supabase";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -16,23 +15,22 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Eye,
   EyeOff,
-  Wrench,
   Mail,
   Lock,
   Loader2,
+  ShieldCheck,
 } from "lucide-react";
 import { GoogleIcon } from "./CustomIcons";
 import MuiButton from "@mui/material/Button";
 import { signInWithGoogle } from "@/lib/auth";
-// import { login } from "@/lib/backend";
 
 export default function LoginPage() {
   const router = useRouter();
 
+  const [activeTab, setActiveTab] = useState<"user" | "pro">("user");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -41,11 +39,8 @@ export default function LoginPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
-  /* ================================
-     SUPABASE SESSION CHECK (GOOGLE)
-     ================================ */
+  /* SESSION CHECK */
   useEffect(() => {
     const checkSession = async () => {
       const {
@@ -60,21 +55,15 @@ export default function LoginPage() {
     checkSession();
   }, [router]);
 
-  /* ================================
-     EMAIL / PASSWORD LOGIN
-     ================================ */
+  /* LOGIN */
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setIsSubmitting(true);
     setError(null);
-    setSuccess(null);
 
     try {
-      // await login({ email, password });
-
-      setSuccess("Login successful");
-      router.replace("/home");
+      // Replace with your real backend login
+      router.replace(activeTab === "pro" ? "/pro/home" : "/home");
     } catch {
       setError("Invalid email or password");
     } finally {
@@ -83,177 +72,183 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#0D1117]">
-      <header className="border-b bg-[#0D1117]/30 border-[#0D1117]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Wrench className="h-6 w-6 sm:h-7 sm:w-7 text-[#007BFF]" />
-            <span className="text-xl sm:text-2xl font-bold text-white">
-              Nexcyn
-            </span>
-          </Link>
-        </div>
-      </header>
+    <main className="min-h-screen bg-[#0B1426] flex items-center justify-center px-4">
 
-      <section className="py-8 sm:py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-8 lg:gap-10 items-center">
-          {/* LEFT */}
-          <div className="hidden lg:block">
-            <div className="bg-[#FFFFFF]/5 rounded-2xl shadow-md p-6 lg:p-8">
-              <h1 className="text-3xl lg:text-4xl font-bold text-[#FFFFFF] mb-4">
-                Welcome back to <span className="text-[#007BFF]">Nexcyn</span>
-              </h1>
-              <p className="text-base lg:text-lg text-[#FFFFFF] mb-6">
-                Sign in to manage your bookings, track service status, and view
-                your history.
-              </p>
-              <ul className="space-y-3">
-                <li className="text-white flex items-start gap-3">
-                  <span className="mt-1 w-2.5 h-2.5 rounded-full bg-white" />
-                  10,000+ happy customers
-                </li>
-                <li className="text-white flex items-start gap-3">
-                  <span className="mt-1 w-2.5 h-2.5 rounded-full bg-white" />
-                  98% satisfaction rate
-                </li>
-                <li className="text-white flex items-start gap-3">
-                  <span className="mt-1 w-2.5 h-2.5 rounded-full bg-white" />
-                  Same-day service in most areas
-                </li>
-              </ul>
-            </div>
+      <Card className="bg-[#111C33] border border-[#1F2A44] shadow-2xl rounded-3xl w-full max-w-md">
+
+        <CardHeader className="space-y-6 p-6">
+
+          {/* TOGGLE */}
+          <div className="relative flex bg-[#0B1426] p-1 rounded-full overflow-hidden">
+            
+            <span
+              className={`absolute top-1 bottom-1 w-1/2 rounded-full transition-all duration-300 ${
+                activeTab === "user"
+                  ? "left-1 bg-[#007BFF]"
+                  : "left-[50%] bg-gradient-to-r from-purple-600 to-indigo-600"
+              }`}
+            />
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("user")}
+              className="relative z-10 w-1/2 py-2 text-sm font-medium text-white"
+            >
+              Sign In
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("pro")}
+              className="relative z-10 w-1/2 py-2 text-sm font-medium text-white"
+            >
+              Sign for Professional
+            </button>
           </div>
 
-          {/* RIGHT */}
-          <Card className="bg-[#FFFFFF]/5 border-0 shadow-xl max-w-md w-full mx-auto">
-            <CardHeader className="space-y-1 p-4 sm:p-6">
-              <CardTitle className="text-xl sm:text-2xl text-white">
-                Sign in to your account
-              </CardTitle>
-              <CardDescription className="text-white text-sm sm:text-base">
-                Enter your credentials to continue
-              </CardDescription>
-            </CardHeader>
+          {/* HEADER TEXT */}
+          <div className="space-y-2">
+            {activeTab === "pro" && (
+              <div className="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-blue-600/20 text-purple-400 border border-purple-500/30">
+                <ShieldCheck size={14} />
+                Verified Professional Access
+              </div>
+            )}
 
-            <CardContent className="p-4 sm:p-6">
-              <form
-                className="space-y-4 sm:space-y-6"
-                noValidate
-                onSubmit={handleLogin}
-              >
-                {/* EMAIL */}
-                <div className="space-y-2">
-                  <Label className="text-white">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6C757D]" />
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-9 h-11 sm:h-12 rounded-xl"
-                      required
-                    />
-                  </div>
-                </div>
+            <CardTitle className="text-2xl text-white">
+              {activeTab === "user"
+                ? "Welcome Back"
+                : "Professional Portal Login"}
+            </CardTitle>
 
-                {/* PASSWORD */}
-                <div className="space-y-2">
-                  <Label className="text-white">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6C757D]" />
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-9 pr-10 h-11 sm:h-12 rounded-xl"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((s) => !s)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6C757D]"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
+            <CardDescription className="text-gray-400">
+              {activeTab === "user"
+                ? "Sign in to manage your bookings and services"
+                : "Access your professional dashboard and manage clients"}
+            </CardDescription>
+          </div>
+        </CardHeader>
 
-                {/* SUBMIT */}
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full h-11 sm:h-12 rounded-xl bg-[#007BFF]"
+        <CardContent className="p-6 pt-0">
+          <form className="space-y-5" onSubmit={handleLogin} noValidate>
+
+            {/* EMAIL */}
+            <div className="space-y-2">
+              <Label className="text-gray-300">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-9 h-12 rounded-xl bg-[#0B1426] border-[#1F2A44] text-white"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* PASSWORD */}
+            <div className="space-y-2">
+              <Label className="text-gray-300">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-9 pr-10 h-12 rounded-xl bg-[#0B1426] border-[#1F2A44] text-white"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
                 >
-                  {isSubmitting ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Signing in...
-                    </span>
+                  {showPassword ? (
+                    <EyeOff size={18} />
                   ) : (
-                    "Sign In"
+                    <Eye size={18} />
                   )}
-                </Button>
+                </button>
+              </div>
+            </div>
 
-                {/* DIVIDER */}
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-200" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="bg-white px-2 text-[#6C757D]">or</span>
-                  </div>
-                </div>
+            {error && (
+              <p className="text-red-400 text-sm">{error}</p>
+            )}
 
-                {/* GOOGLE */}
-                <MuiButton
-                  fullWidth
-                  variant="outlined"
-                  disabled={isGoogleLoading}
-                  startIcon={
-                    isGoogleLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <GoogleIcon />
-                    )
-                  }
-                  onClick={async () => {
-                    try {
-                      setIsGoogleLoading(true);
-                      await signInWithGoogle();
-                    } catch {
-                      setError("Google sign-in failed");
-                      setIsGoogleLoading(false);
-                    }
-                  }}
-                  sx={{
-                    color: "#cfd4dcff",
-                    fontWeight: "bold",
-                    borderColor: "#3607efff",
-                    backgroundColor: "#007bffda",
-                    "&:hover": {
-                      borderColor: "#1035f0ff",
-                      backgroundColor: "#351ee3b3",
-                    },
-                  }}
-                >
-                  {isGoogleLoading ? "Signing in..." : "Sign in with Google"}
-                </MuiButton>
+            {/* SUBMIT */}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className={`w-full h-12 rounded-xl transition ${
+                activeTab === "user"
+                  ? "bg-[#007BFF] hover:bg-blue-600"
+                  : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90"
+              }`}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Signing in...
+                </span>
+              ) : activeTab === "user" ? (
+                "Sign In"
+              ) : (
+                "Access Professional Dashboard"
+              )}
+            </Button>
 
-                <div className="text-xs sm:text-sm text-[#cbd5e1]">
-                  Don&apos;t have an account?{" "}
-                  <Link href="/createAccount" className="text-[#007BFF]">
-                    Create account
-                  </Link>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+            {/* DIVIDER */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-[#1F2A44]" />
+              <span className="text-sm text-gray-400">or sign with</span>
+              <div className="flex-1 h-px bg-[#1F2A44]" />
+            </div>
+
+            {/* GOOGLE */}
+            <MuiButton
+              fullWidth
+              variant="contained"
+              disabled={isGoogleLoading}
+              startIcon={
+                isGoogleLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <GoogleIcon />
+                )
+              }
+              onClick={async () => {
+                try {
+                  setIsGoogleLoading(true);
+                  await signInWithGoogle();
+                } catch {
+                  setError("Google sign-in failed");
+                  setIsGoogleLoading(false);
+                }
+              }}
+              sx={{
+                backgroundColor: "#1F6FEB",
+                fontWeight: "bold",
+                borderRadius: "12px",
+                "&:hover": {
+                  backgroundColor: "#388BFD",
+                },
+              }}
+            >
+              {isGoogleLoading ? "Signing in..." : "Sign in with Google"}
+            </MuiButton>
+
+            <div className="text-sm text-gray-400 text-center">
+              Don&apos;t have an account?{" "}
+              <Link href="/createAccount" className="text-[#007BFF]">
+                Create account
+              </Link>
+            </div>
+
+          </form>
+        </CardContent>
+      </Card>
     </main>
   );
 }

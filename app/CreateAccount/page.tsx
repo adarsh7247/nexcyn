@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -27,7 +28,7 @@ export default function CreateAccountPage() {
   };
 
   const validate = () => {
-    let newErrors: any = {};
+    const newErrors: any = {};
 
     if (!form.name.trim())
       newErrors.name = "Full name is required";
